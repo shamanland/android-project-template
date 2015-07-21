@@ -1,0 +1,10 @@
+<resources>
+    <dimen name="space_pixel">1px</dimen>
+    <dimen name="space_nano">1dp</dimen>
+    <dimen name="space_micro">2dp</dimen>
+    <dimen name="space_mini">4dp</dimen>
+    <dimen name="space_small">8dp</dimen>
+    <dimen name="space_normal">16dp</dimen>
+    <dimen name="space_medium">24dp</dimen>
+    <dimen name="space_large">48dp</dimen>
+</resources>

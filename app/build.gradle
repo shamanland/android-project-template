@@ -1,0 +1,6 @@
+dependencies {
+    compile libs.androidAppCompat
+    compile libs.libCommon
+    compile libs.rollbar
+    compile libs.xdroidApp
+}

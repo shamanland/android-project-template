@@ -1,0 +1,103 @@
+apply from: "utils.gradle"
+
+buildscript {
+    extensions.add("libs", [
+            androidAppCompat   : "com.android.support:appcompat-v7:22.2.0",
+            androidGradlePlugin: "com.android.tools.build:gradle:1.2.3",
+            deployGate         : "com.deploygate:gradle:0.6.2",
+            libCommon          : project(":lib-common"),
+            rollbar            : files("libs/rollbar-android-0.1.2.jar"),
+            xdroidApp          : "com.shamanland:xdroid-app:0.2.6",
+            xdroidCore         : "com.shamanland:xdroid-core:0.2.6",
+    ])
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath libs.androidGradlePlugin
+        classpath libs.deployGate
+    }
+}
+
+subprojects {
+    version({ name, suffix -> suffix.isEmpty() ? name : name + "." + suffix }.call(VERSION_NAME as String, VERSION_NAME_SUFFIX as String))
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+
+    if (!name.equals("app")) {
+        apply plugin: "com.android.library"
+    } else {
+        apply plugin: "com.android.application"
+        apply plugin: "deploygate"
+
+        android {
+            defaultConfig {
+                applicationId APP_ID as String
+                versionCode VERSION_CODE as int
+                versionName version
+
+                buildConfigField "String", "ROLLBAR_TOKEN", toJavaCodeString(ROLLBAR_TOKEN as String)
+            }
+
+            signingConfigs {
+                debug {
+                    storeFile new File(rootProject.rootDir, "debug.keystore")
+                }
+
+                release {
+                    storeFile new File(rootProject.rootDir, STORE_FILE as String)
+                    storePassword STORE_PASSWORD as String
+                    keyAlias KEY_ALIAS as String
+                    keyPassword KEY_PASSWORD as String
+                }
+            }
+
+            buildTypes {
+                release {
+                    if ({ f -> f.isFile() && f.exists() }.call(signingConfigs.release.storeFile)) {
+                        signingConfig signingConfigs.release
+                    }
+
+                    minifyEnabled true
+                    proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+                }
+            }
+        }
+
+        deploygate {
+            userName = DEPLOYGATE_USERNAME as String
+            token = DEPLOYGATE_TOKEN as String
+
+            apks {
+                debug {
+                    sourceFile = file("build/outputs/apk/" + project.name + "-debug.apk")
+                }
+            }
+        }
+    }
+
+    android {
+        compileSdkVersion COMPILE_SDK_VERSION as int
+        buildToolsVersion BUILD_TOOLS_VERSION as String
+
+        defaultConfig {
+            minSdkVersion MIN_SDK_VERSION as int
+            targetSdkVersion TARGET_SDK_VERSION as int
+
+            // workaround for https://code.google.com/p/android/issues/detail?id=52962
+            String snapshot = (SNAPSHOT as boolean) ? "Boolean.parseBoolean(\"true\")" : "false"
+            buildConfigField "boolean", "SNAPSHOT", snapshot
+
+            String production = (SNAPSHOT as boolean && (VERSION_NAME_SUFFIX as String).isEmpty()) ? "Boolean.parseBoolean(\"false\")" : "true"
+            buildConfigField "boolean", "PRODUCTION", production
+        }
+    }
+}
