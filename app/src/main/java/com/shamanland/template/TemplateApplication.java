@@ -1,7 +1,7 @@
 package com.shamanland.template;
 
 import com.rollbar.android.Rollbar;
-import com.shamanland.common.CommonUtils;
+import com.shamanland.common.DebugUtils;
 
 import xdroid.app.ApplicationExt;
 
@@ -22,7 +22,7 @@ public class TemplateApplication extends ApplicationExt {
                     @Override
                     public void uncaughtException(Thread thread, Throwable ex) {
                         if (ex instanceof OutOfMemoryError) {
-                            CommonUtils.createMemoryDump();
+                            DebugUtils.createMemoryDump();
                         }
 
                         defaultHandler.uncaughtException(thread, ex);

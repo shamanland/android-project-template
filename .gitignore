@@ -11,3 +11,4 @@ local.properties
 
 # files from device
 traces.txt
+*.hprof
