@@ -112,3 +112,45 @@ subprojects {
         }
     }
 }
+
+task changeTemplate << {
+    def readProperty = { String name, String defaultValue ->
+        if (rootProject.hasProperty(name)) {
+            def result = rootProject.property(name) as String
+            if (result ==~ /([a-z_][a-z0-9_]*\.?)*/) {
+                return result
+            } else {
+                throw new IllegalArgumentException(name + " is illegal: " + result)
+            }
+        } else if (defaultValue != null) {
+            return defaultValue
+        } else {
+            throw new IllegalArgumentException("Could not find property '" + name + "'")
+        }
+    }
+
+    def appIdOld = readProperty("templateAppIdOld", "com.shamanland.template")
+    def appIdNew = readProperty("templateAppIdNew", null)
+
+    def traverseFiles
+    traverseFiles = { File root, Collection<String> exts, Closure<File> handler ->
+        if (root.isHidden()) {
+            return
+        }
+
+        def files = root.listFiles()
+        for (def f : files) {
+            if (f.isFile()) {
+                if (exts.contains(f.getName().split("\\.").last())) {
+                    handler(f)
+                }
+            } else {
+                traverseFiles(f, exts, handler)
+            }
+        }
+    }
+
+    traverseFiles(rootDir, new HashSet<>(Arrays.asList("java", "xml", "gradle", "properties")), { File f ->
+        println("TEMP: " + f.getName())
+    })
+}
