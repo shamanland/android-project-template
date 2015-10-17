@@ -3,14 +3,14 @@ package com.shamanland.template;
 import com.rollbar.android.Rollbar;
 import com.shamanland.common.DebugUtils;
 
-import xdroid.app.ApplicationExt;
+import xdroid.app.ApplicationX;
 
 import static com.shamanland.template.BuildConfig.BUILD_TYPE;
 import static com.shamanland.template.BuildConfig.PRODUCTION;
 import static com.shamanland.template.BuildConfig.ROLLBAR_TOKEN;
 import static com.shamanland.template.BuildConfig.SNAPSHOT;
 
-public class TemplateApplication extends ApplicationExt {
+public class TemplateApplication extends ApplicationX {
     @Override
     public void onCreate() {
         super.onCreate();
